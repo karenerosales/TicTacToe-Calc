@@ -1,5 +1,68 @@
 import { useState } from 'react';
 
+function Calculator() {
+  const [expression, setExpression] = useState('0');
+  const [result, setResult] = useState('0');
+
+  const handleButtonClick = (value) => {
+    if (value === '=') {
+      handleCalculate();
+    } else if (value === 'C') {
+      handleClear();
+    } else {
+      setExpression((prevExpression) => {
+        //Check if previous is 0, if so replace with value
+        if (prevExpression === '0' && !['+', '-', '*', '/'].includes(value)) {
+          return value;
+        } else {
+          return prevExpression + value;
+        }
+      });
+    }
+  };
+
+  const handleClear = () => {
+    setExpression('0');
+    setResult('0');
+  };
+
+  const handleCalculate = () => {
+    try {
+      //Evaluate result
+      const calculatedResult = eval(expression);
+      setExpression(calculatedResult.toString());
+      setResult(calculatedResult.toString());
+    } catch (error) {
+      setResult('Error');
+    }
+  };
+
+  const buttonValues = [
+    '7','8','9','+',
+    '4','5','6','-',
+    '1','2','3','*',
+    'C','0','=','/'
+  ];
+
+  return (
+    <div className="calculator">
+      <div className="display">
+        {expression}
+      </div>
+      <div className="result">
+        {result}
+      </div>
+      <div className="buttons">
+        {buttonValues.map((value, index) => (
+          <button key={index} onClick={() => handleButtonClick(value)}>
+            {value}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Square({ value, onSquareClick }) {
   return (
     <button className="square" onClick={onSquareClick}>
@@ -52,7 +115,7 @@ function Board({ xIsNext, squares, onPlay }) {
   );
 }
 
-export default function Game() {
+export default function App() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
@@ -83,12 +146,17 @@ export default function Game() {
   });
 
   return (
-    <div className="game">
-      <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+    <div className="app">
+      <div className="game">
+        <div className="game-board">
+          <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+        </div>
+        <div className="game-info">
+          <ol>{moves}</ol>
+        </div>
       </div>
-      <div className="game-info">
-        <ol>{moves}</ol>
+      <div className="calculator-container" style={{marginTop: '20px'}}>
+        <Calculator />
       </div>
     </div>
   );
